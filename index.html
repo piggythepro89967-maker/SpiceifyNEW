@@ -203,7 +203,7 @@ const rd=f=>new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.
 $('expbtn').onclick=async()=>{if(!owner)return;toast('Building your copy…');try{let src;try{const r=await fetch(location.href,{cache:'no-store'});src=await r.text();if(!r.ok||!src.includes('id="spdata"'))throw 0}catch(e){toast('Open your hosted copy (not a local file) to use Save copy');return}const songs=[];for(const s of SG){if(s.id==='fl'||s.id==='sj'||s.remote)continue;songs.push({id:s.id,title:s.title,artist:s.artist,audio:s.file?await rd(s.file):s.src,cover:s.cfile?await rd(s.cfile):(s.cover===DCOVER?null:s.cover)})}
 const lyrics={};SG.forEach(s=>lyrics[s.id]=s.id===SG[ci].id?L:lyricsFor(s.id));
 const bg={};for(const s of SG){const b=bgFor(s.id);if(b.type==='none')continue;const o={type:b.type,color:b.color};if(b.type==='video'){const x=await vidFor(s.id);if(x)o.video=x.file?await rd(x.file):x.src}bg[s.id]=o}
-const data=JSON.stringify({songs,lyrics,bg}).replace(/</g,'\\u003c');
+const data=JSON.stringify({songs,lyrics,bg,repo:(r=>/^[\w.-]+\/[\w.-]+$/.test(r.repo)?{repo:r.repo,branch:r.branch||'main'}:undefined)(GHC())}).replace(/</g,'\\u003c');
 const html=src.replace(/(<script id="spdata" type="application\/json">)[\s\S]*?(<\/script>)/,(m,a,b)=>a+data+b);
 const u=URL.createObjectURL(new Blob([html],{type:'text/html'})),a=document.createElement('a');a.href=u;a.download='index.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('Downloaded index.html. Upload it to GitHub to keep everything.')}catch(e){toast('Could not build the copy')}};
 $('bkr').onclick=()=>{try{const v=JSON.parse($('bk').value);if(!Array.isArray(v)||v.some(x=>!Array.isArray(x)||isNaN(x[0])||typeof x[1]!=='string'))throw 0;L=v;save();render();toast('Lyrics restored')}catch(e){toast('That backup text is not valid')}};
@@ -348,6 +348,7 @@ const b=bgFor(s.id);if(b.type==='none')continue;const o={type:b.type,color:b.col
 if(b.type==='video'){const x=await vidFor(s.id);if(x){if(x.pub)o.video=x.pub;else if(x.file||String(x.src).startsWith('data:')){ghSt('Uploading background for '+s.title+'…');const vb=await getBlob(x.file||x.src),vp='data/'+s.id+'-v'+Date.now()+'.'+extOf(vb,'mp4');await putFile(vp,await b64(vb),'Add background video',true);x.pub=vp;o.video=vp}else o.video=x.src}else o.type='none'}
 bg[s.id]=o}
 ghSt('Saving library…');await putFile('data/library.json',await b64(new Blob([JSON.stringify({version:1,songs,lyrics,bg})])),'Update Spiceify library',false);
+try{const g=GHC();fetch('https://purge.jsdelivr.net/gh/'+g.repo+'@'+(g.branch||'main')+'/data/library.json',{mode:'no-cors'}).catch(()=>{})}catch(e){}
 ghSt('Published! It can take a minute or two to show up for everyone.');toast('Published to GitHub')}
 catch(e){ghSt(e&&e.message?e.message:'Could not publish. Check your connection and try again.')}
 ghBusy=false;$('ghok').disabled=false}
@@ -355,9 +356,14 @@ function afterImport(){const c=GHC();if(/^[\w.-]+\/[\w.-]+$/.test(c.repo)&&c.tok
 $('ghbtn').onclick=()=>openGh();$('ghx').onclick=()=>$('ghm').hidden=true;
 $('ghok').onclick=()=>{const repo=$('ghr').value.trim(),branch=$('ghb').value.trim()||'main',token=$('ght').value.trim(),keep=$('ghk').checked;
 try{localStorage.setItem(GHL,JSON.stringify(keep?{repo,branch,token}:{repo,branch}));sessionStorage.setItem('spiceify-ght',token)}catch(e){}publishAll()};
-async function loadRemote(){try{const r=await fetch('data/library.json',{cache:'no-store'});if(!r.ok)return;const j=await r.json();
-(j.songs||[]).forEach(x=>{const rm={audio:x.audio,cover:x.cover||null},ex=SG.find(z=>z.id===x.id);if(ex){ex.remote=rm;return}SG.push({id:x.id,title:x.title,artist:x.artist,src:x.audio,cover:x.cover||DCOVER,remote:rm})});
-EMB.lyrics=Object.assign({},EMB.lyrics,j.lyrics||{});EMB.bg=Object.assign({},EMB.bg,j.bg||{});
+async function loadRemote(){try{const qs=new URLSearchParams(location.search),qr=qs.get('repo');
+const c=EMB.repo||(qr&&/^[\w.-]+\/[\w.-]+$/.test(qr)?{repo:qr,branch:qs.get('branch')||'main'}:null),cdn=c?'https://cdn.jsdelivr.net/gh/'+c.repo+'@'+(c.branch||'main')+'/':'';
+let j=null,pre='';try{const r=await fetch('data/library.json',{cache:'no-store'});if(r.ok)j=await r.json()}catch(e){}
+if(!j&&cdn){try{const r=await fetch(cdn+'data/library.json');if(r.ok){j=await r.json();pre=cdn}}catch(e){}}
+if(!j)return;const u=x=>x?pre+x:null;
+(j.songs||[]).forEach(x=>{const rm={audio:x.audio,cover:x.cover||null},ex=SG.find(z=>z.id===x.id);if(ex){ex.remote=rm;return}SG.push({id:x.id,title:x.title,artist:x.artist,src:u(x.audio),cover:u(x.cover)||DCOVER,remote:rm})});
+const bgs={};Object.entries(j.bg||{}).forEach(([k,v])=>bgs[k]=v.video?{...v,video:u(v.video)}:v);
+EMB.lyrics=Object.assign({},EMB.lyrics,j.lyrics||{});EMB.bg=Object.assign({},EMB.bg,bgs);
 L=loadL();render();renderSongs();applyBg();syncLike()}catch(e){}}
 render();renderSongs();loadSaved();loadRemote();applyBg();syncLike();try{if(sessionStorage.getItem('spiceify-owner'))setOwner(true)}catch(e){}
 au.ontimeupdate=tick;au.onloadedmetadata=tick;
