@@ -181,7 +181,7 @@ setTimeout(()=>{if(!stopped){tasks=doneN=Math.max(1,doneN);finishReq=true}},1400
 <div class="hint">Click any lyric line to jump to it<button id="lite" class="liteb">⚡ Lite mode</button></div></aside>
 </div><div class="modal" id="pw" hidden><div><b>Enter password</b><input type="password" id="pwi" autocomplete="off" aria-label="Password"><div class="err" id="pwe"></div><button class="pri" id="pwok">Enter</button><button id="pwx">Cancel</button></div></div>
 <div class="modal" id="addm" hidden><div><b>Add song</b><label>Title<input id="nt"></label><label>Artist<input id="na"></label><label>Audio file<input type="file" id="nf" accept="audio/*"></label><label>Cover image (optional)<input type="file" id="nc" accept="image/*"></label><div class="err" id="ne"></div><button class="pri" id="nok">Add song</button><button id="nx2">Cancel</button></div></div>
-<div class="modal" id="bgm" hidden><div><b>Background for this song</b><label>Style<select id="bgt"><option value="none">Default night sky</option><option value="color">Solid color</option><option value="video">Music video</option></select></label><label id="bgcl" hidden>Color<input type="color" id="bgcol" value="#0a1f44"></label><label id="bgvl" hidden>Video file<input type="file" id="bgf" accept="video/*"></label><div class="err" id="bge"></div><button class="pri" id="bgok">Save background</button><button id="bgx">Cancel</button></div></div>
+<div class="modal" id="bgm" hidden><div><b>Background for this song</b><label>Style<select id="bgt"><option value="none">Default night sky</option><option value="color">Solid color</option><option value="video">Music video</option></select></label><label id="bgcl" hidden>Color<input type="color" id="bgcol" value="#0a1f44"></label><label id="bgvl" hidden>Video file<input type="file" id="bgf" accept="video/*"></label><label id="bgsl" hidden>Show the video from this point in the song (m:ss)<input id="bgst" placeholder="0:00"></label><label id="bgol" hidden>Start the video at this point of the video file (m:ss)<input id="bgot" placeholder="0:00"></label><div class="err" id="bge"></div><button class="pri" id="bgok">Save background</button><button id="bgx">Cancel</button></div></div>
 <div class="modal" id="dlm" hidden><div><b>Download everything</b><p class="sm">Every song with its lyrics, cover and background.</p><label>File type<select id="dlf"><option value="zip">ZIP folder (audio, lyrics .lrc, covers, videos)</option><option value="json">One backup file (.json)</option><option value="html">Standalone web page (.html)</option></select></label><label>Custom file extension (optional)<input id="dle" placeholder="e.g. zip, json, spice"></label><div class="err" id="dls" style="color:var(--dim)"></div><button class="pri" id="dlok">Download</button><button id="dlx">Cancel</button></div></div>
 <div class="modal" id="plm" hidden><div><b id="plt">Playlists</b><div class="pll" id="pll"></div><label>New playlist<input id="pln" placeholder="Playlist name" maxlength="40"></label><button class="pri" id="plc">Create playlist</button><button id="plx">Done</button></div></div>
 <div class="modal" id="ghm" hidden><div><b>Publish to GitHub</b><p class="sm">Saves your songs, lyrics and backgrounds into your repo so they stay for everyone. Make a fine-grained token with “Contents: Read and write” on just this repo.</p><label>Repository (owner/name)<input id="ghr" placeholder="your-name/spiceify"></label><label>Branch<input id="ghb" value="main"></label><label>Token<input type="password" id="ght" autocomplete="off"></label><label class="ck"><input type="checkbox" id="ghk"> Remember the token on this device</label><div class="err" id="ghs" style="color:var(--dim)"></div><button class="pri" id="ghok">Publish now</button><button id="ghx">Close</button></div></div>
@@ -333,28 +333,33 @@ $('bkg').onclick=()=>{$('bk').value=JSON.stringify(L)};
 const rd=f=>new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)});
 $('expbtn').onclick=async()=>{if(!owner)return;toast('Building your copy…');try{let src;try{const r=await fetch(location.href,{cache:'no-store'});src=await r.text();if(!r.ok||!src.includes('id="spdata"'))throw 0}catch(e){toast('Open your hosted copy (not a local file) to use Save copy');return}const songs=[];for(const s of SG){if(s.id==='fl'||s.id==='sj'||s.remote)continue;songs.push({id:s.id,title:s.title,artist:s.artist,audio:s.file?await rd(s.file):s.src,cover:s.cfile?await rd(s.cfile):(s.cover===DCOVER?null:s.cover)})}
 const lyrics={};SG.forEach(s=>lyrics[s.id]=s.id===SG[ci].id?L:lyricsFor(s.id));
-const bg={};for(const s of SG){const b=bgFor(s.id);if(b.type==='none')continue;const o={type:b.type,color:b.color};if(b.type==='video'){const x=await vidFor(s.id);if(x)o.video=x.file?await rd(x.file):x.src}bg[s.id]=o}
+const bg={};for(const s of SG){const b=bgFor(s.id);if(b.type==='none')continue;const o={type:b.type,color:b.color,vstart:b.vstart||0,voff:b.voff||0};if(b.type==='video'){const x=await vidFor(s.id);if(x)o.video=x.file?await rd(x.file):x.src}bg[s.id]=o}
 const data=JSON.stringify({songs,lyrics,bg,albums:ALB,deleted:DEL,repo:(r=>/^[\w.-]+\/[\w.-]+$/.test(r.repo)?{repo:r.repo,branch:r.branch||'main'}:undefined)(GHC())}).replace(/</g,'\\u003c');
 const html=src.replace(/(<script id="spdata" type="application\/json">)[\s\S]*?(<\/script>)/,(m,a,b)=>a+data+b);
 const u=URL.createObjectURL(new Blob([html],{type:'text/html'})),a=document.createElement('a');a.href=u;a.download='index.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('Downloaded index.html. Upload it to GitHub to keep everything.')}catch(e){toast('Could not build the copy')}};
 $('bkr').onclick=()=>{try{const v=JSON.parse($('bk').value);if(!Array.isArray(v)||v.some(x=>!Array.isArray(x)||isNaN(x[0])||typeof x[1]!=='string'))throw 0;L=v;save();render();toast('Lyrics restored')}catch(e){toast('That backup text is not valid')}};
 const BGK=id=>'spiceify-bg-'+id,BGM={},VID={};
-function bgFor(id){if(BGM[id])return BGM[id];try{const v=JSON.parse(localStorage.getItem(BGK(id)));if(v&&v.type)return v}catch(e){}const e=EMB.bg&&EMB.bg[id];return e?{type:e.type,color:e.color}:{type:'none',color:'#0a1f44'}}
+function bgFor(id){if(BGM[id])return BGM[id];try{const v=JSON.parse(localStorage.getItem(BGK(id)));if(v&&v.type)return v}catch(e){}const e=EMB.bg&&EMB.bg[id];return e?{type:e.type,color:e.color,vstart:e.vstart||0,voff:e.voff||0}:{type:'none',color:'#0a1f44',vstart:0,voff:0}}
 async function vidFor(id){if(VID[id])return VID[id];const e=EMB.bg&&EMB.bg[id];if(e&&e.video)return VID[id]={src:e.video};try{const f=await idbGet(id+'-v');if(f)return VID[id]={src:URL.createObjectURL(f),file:f}}catch(x){}return null}
 function syncV(){const v=$('bgv');if(v.hidden)return;if(au.paused)v.pause();else v.play().catch(()=>{})}
-async function applyBg(){const id=SG[ci].id,b=bgFor(id),v=$('bgv'),c=$('bgc'),o=$('bgo');v.pause();v.hidden=true;c.hidden=true;o.hidden=true;document.body.dataset.bg=b.type==='video'?'none':b.type;$('cbg').style.backgroundImage='url("'+SG[ci].cover+'")';
+async function applyBg(){const id=SG[ci].id,b=bgFor(id),v=$('bgv'),c=$('bgc'),o=$('bgo');v.pause();v.hidden=true;c.hidden=true;o.hidden=true;v.dataset.vid='';document.body.dataset.bg=b.type==='video'?'none':b.type;$('cbg').style.backgroundImage='url("'+SG[ci].cover+'")';
 if(b.type==='color'){c.style.background=b.color;c.hidden=false}
-else if(b.type==='video'){const x=await vidFor(id);if(x&&SG[ci].id===id){if(v.dataset.u!==x.src){v.style.opacity=0;v.preload='metadata';v.src=x.src;v.dataset.u=x.src}if(v.readyState>=2)v.style.opacity=1;v.hidden=false;o.hidden=false;document.body.dataset.bg='video';try{v.currentTime=au.currentTime%(v.duration||1e9)}catch(e){}syncV()}}}
+else if(b.type==='video'){const x=await vidFor(id);if(x&&SG[ci].id===id){if(v.dataset.u!==x.src){v.style.opacity=0;v.preload='metadata';v.src=x.src;v.dataset.u=x.src}if(v.readyState>=2)v.style.opacity=1;v.dataset.vid='1';vidTick()}}}
 au.addEventListener('play',syncV);au.addEventListener('pause',syncV);
-au.addEventListener('timeupdate',()=>{const v=$('bgv');if(!v.hidden&&v.duration&&Math.abs(v.currentTime-au.currentTime)>.6)v.currentTime=Math.min(au.currentTime,v.duration-.1)});
-function bgFields(){const t=$('bgt').value;$('bgcl').hidden=t!=='color';$('bgvl').hidden=t!=='video'}
+function vidTick(){const v=$('bgv');if(v.dataset.vid!=='1')return;const b=bgFor(SG[ci].id),vs=b.vstart||0,vo=b.voff||0,t=au.currentTime,on=t>=vs;
+v.hidden=!on;$('bgo').hidden=!on;document.body.dataset.bg=on?'video':'none';
+if(!on){v.pause();return}
+const tg=Math.max(0,t-vs+vo);if(v.duration){const d=v.duration,w=tg%d;if(Math.abs(v.currentTime-w)>.6&&!(d-Math.max(v.currentTime,w)<.6&&Math.abs(v.currentTime-w)>d-.6))v.currentTime=w}
+syncV()}
+au.addEventListener('timeupdate',vidTick);au.addEventListener('seeked',vidTick);
+function bgFields(){const t=$('bgt').value;$('bgcl').hidden=t!=='color';$('bgvl').hidden=t!=='video';$('bgsl').hidden=t!=='video';$('bgol').hidden=t!=='video'}
 $('bgt').onchange=bgFields;
-$('bgbtn').onclick=()=>{const b=bgFor(SG[ci].id);$('bgt').value=b.type;$('bgcol').value=b.color||'#0a1f44';$('bge').textContent='';$('bgf').value='';bgFields();$('bgm').hidden=false};
+$('bgbtn').onclick=()=>{const b=bgFor(SG[ci].id);$('bgt').value=b.type;$('bgcol').value=b.color||'#0a1f44';$('bgst').value=fmt(b.vstart||0);$('bgot').value=fmt(b.voff||0);$('bge').textContent='';$('bgf').value='';bgFields();$('bgm').hidden=false};
 $('bgx').onclick=()=>$('bgm').hidden=true;
 $('bgok').onclick=async()=>{if(!owner)return;const id=SG[ci].id,t=$('bgt').value,f=$('bgf').files[0];
 if(t==='video'&&!f&&!(await vidFor(id))){$('bge').textContent='Choose a video file.';return}
 if(t==='video'&&f){VID[id]={src:URL.createObjectURL(f),file:f};try{await idbSet(id+'-v',f)}catch(e){toast('Video not saved in this browser. Use Save copy to keep it.')}}
-const b={type:t,color:$('bgcol').value};BGM[id]=b;try{localStorage.setItem(BGK(id),JSON.stringify(b))}catch(e){}
+const vs=parse($('bgst').value),vo=parse($('bgot').value),b={type:t,color:$('bgcol').value,vstart:isNaN(vs)||vs<0?0:vs,voff:isNaN(vo)||vo<0?0:vo};BGM[id]=b;try{localStorage.setItem(BGK(id),JSON.stringify(b))}catch(e){}
 $('bgm').hidden=true;applyBg();toast('Background saved')};
 const lyrEl=document.querySelector('.lyr'),lz=$('lz');let it;
 function wake(){document.body.classList.remove('idle');clearTimeout(it);it=setTimeout(()=>document.body.classList.add('idle'),2800)}
@@ -389,14 +394,14 @@ $('dlok').disabled=true;st.textContent='Collecting…';
 try{const items=[];
 for(let i=0;i<SG.length;i++){const s=SG[i],ab=await getBlob(s.file||s.src),cv2=s.cfile||(s.cover===DCOVER?null:s.cover),cb=cv2?await getBlob(cv2):null,b=bgFor(s.id);let vb=null;if(b.type==='video'){const x=await vidFor(s.id);if(x)vb=await getBlob(x.file||x.src)}
 items.push({s,ab,cb,b,vb,ly:s.id===SG[ci].id?L:lyricsFor(s.id)});st.textContent='Collected '+(i+1)+' of '+SG.length+'…'}
-if(fmt==='json'){const songs=[];for(const it of items)songs.push({id:it.s.id,title:it.s.title,artist:it.s.artist,audio:await rd(it.ab),cover:it.cb?await rd(it.cb):null,lyrics:it.ly,background:{type:it.b.type,color:it.b.color,video:it.vb?await rd(it.vb):null}});
+if(fmt==='json'){const songs=[];for(const it of items)songs.push({id:it.s.id,title:it.s.title,artist:it.s.artist,audio:await rd(it.ab),cover:it.cb?await rd(it.cb):null,lyrics:it.ly,background:{type:it.b.type,color:it.b.color,vstart:it.b.vstart||0,voff:it.b.voff||0,video:it.vb?await rd(it.vb):null}});
 saveBlob(new Blob([JSON.stringify({app:'spiceify',version:1,songs})],{type:'application/json'}),'spiceify-backup.'+(ex||'json'))}
 else{const files=[],man=[],enc=new TextEncoder(),add=(n,d)=>files.push({name:n,data:typeof d==='string'?enc.encode(d):d});
 for(let i=0;i<items.length;i++){const it=items[i],base=safeN(it.s.title),fd=String(i+1).padStart(2,'0')+' - '+base+'/',m={folder:fd,title:it.s.title,artist:it.s.artist};
 m.audio=base+'.'+extOf(it.ab,'mp3');add(fd+m.audio,new Uint8Array(await it.ab.arrayBuffer()));
 if(it.cb){m.cover='cover.'+extOf(it.cb,'jpg');add(fd+m.cover,new Uint8Array(await it.cb.arrayBuffer()))}
 add(fd+'lyrics.lrc',lrcOf(it.ly));add(fd+'lyrics.json',JSON.stringify(it.ly));m.lyrics='lyrics.lrc';
-const bgj={type:it.b.type,color:it.b.color};if(it.vb){bgj.video='background.'+extOf(it.vb,'mp4');add(fd+bgj.video,new Uint8Array(await it.vb.arrayBuffer()))}
+const bgj={type:it.b.type,color:it.b.color,vstart:it.b.vstart||0,voff:it.b.voff||0};if(it.vb){bgj.video='background.'+extOf(it.vb,'mp4');add(fd+bgj.video,new Uint8Array(await it.vb.arrayBuffer()))}
 add(fd+'background.json',JSON.stringify(bgj));m.background=bgj;man.push(m)}
 add('spiceify.json',JSON.stringify({app:'spiceify',version:1,songs:man},null,1));
 st.textContent='Zipping…';saveBlob(makeZip(files),'spiceify-songs.'+(ex||'zip'))}
@@ -423,14 +428,14 @@ a2=g.find(x=>AEXT.includes(extN(x.n))&&!x.n.startsWith('background.')),c2=g.find
 lj=g.find(x=>x.n==='lyrics.json'),ll=g.find(x=>x.n==='lyrics.lrc'),bj=g.find(x=>x.n==='background.json');
 let ly=null;try{if(lj)ly=JSON.parse(dec.decode(lj.d))}catch(e){}if(!ly&&ll)ly=parseLrc(dec.decode(ll.d));
 let bg=null;try{if(bj)bg=JSON.parse(dec.decode(bj.d))}catch(e){}
-out.push({title:(mi&&mi.title)||fd.replace(/^\d+ - /,''),artist:mi&&mi.artist,audio:a2?mkB(a2.d,a2.n):null,cover:c2?mkB(c2.d,c2.n):null,lyrics:ly,bg:bg&&{type:bg.type,color:bg.color,video:vf?mkB(vf.d,vf.n):null}})}return out}
-async function itemsFromJson(o){const bl=async x=>x?await (await fetch(x)).blob():null,out=[];for(const s of o.songs||[])out.push({title:s.title,artist:s.artist,audio:await bl(s.audio),cover:await bl(s.cover),lyrics:s.lyrics,bg:s.background&&{type:s.background.type,color:s.background.color,video:await bl(s.background.video)}});return out}
+out.push({title:(mi&&mi.title)||fd.replace(/^\d+ - /,''),artist:mi&&mi.artist,audio:a2?mkB(a2.d,a2.n):null,cover:c2?mkB(c2.d,c2.n):null,lyrics:ly,bg:bg&&{type:bg.type,color:bg.color,vstart:bg.vstart,voff:bg.voff,video:vf?mkB(vf.d,vf.n):null}})}return out}
+async function itemsFromJson(o){const bl=async x=>x?await (await fetch(x)).blob():null,out=[];for(const s of o.songs||[])out.push({title:s.title,artist:s.artist,audio:await bl(s.audio),cover:await bl(s.cover),lyrics:s.lyrics,bg:s.background&&{type:s.background.type,color:s.background.color,vstart:s.background.vstart,voff:s.background.voff,video:await bl(s.background.video)}});return out}
 async function importSong(it,i){if(!it.title)return 0;let s=SG.find(z=>z.title.trim().toLowerCase()===String(it.title).trim().toLowerCase());
 if(!s){if(!it.audio)return 0;const id='s'+Date.now()+i,ar=it.artist||'Unknown artist';
 try{await idbSet(id+'-a',it.audio);if(it.cover)await idbSet(id+'-c',it.cover);const m=JSON.parse(localStorage.getItem('spiceify-songs')||'[]');m.push({id,title:it.title,artist:ar});localStorage.setItem('spiceify-songs',JSON.stringify(m))}catch(e){}
 s={id,title:it.title,artist:ar,src:URL.createObjectURL(it.audio),cover:it.cover?URL.createObjectURL(it.cover):DCOVER,file:it.audio,cfile:it.cover};SG.push(s)}
 const ly=cleanLy(it.lyrics);if(ly){const k=keyOf(s.id);MEM[k]=ly;try{localStorage.setItem(k,JSON.stringify(ly))}catch(e){}if(SG[ci]===s){L=ly.map(x=>x.slice());KEY=k;render()}}
-if(it.bg&&it.bg.type){const b={type:it.bg.type,color:it.bg.color||'#0a1f44'};BGM[s.id]=b;try{localStorage.setItem(BGK(s.id),JSON.stringify(b))}catch(e){}
+if(it.bg&&it.bg.type){const b={type:it.bg.type,color:it.bg.color||'#0a1f44',vstart:+it.bg.vstart||0,voff:+it.bg.voff||0};BGM[s.id]=b;try{localStorage.setItem(BGK(s.id),JSON.stringify(b))}catch(e){}
 if(it.bg.video){VID[s.id]={src:URL.createObjectURL(it.bg.video),file:it.bg.video};try{await idbSet(s.id+'-v',it.bg.video)}catch(e){}}}
 return 1}
 const imf=document.createElement('input');imf.type='file';imf.hidden=true;imf.id='imf';document.body.appendChild(imf);
@@ -485,7 +490,7 @@ if(bi){if(OVR[s.id]||ap||cp)overrides[s.id]={title:s.title,artist:s.artist,audio
 else songs.push({id:s.id,title:s.title,artist:s.artist,audio:ap,cover:cp})}
 const lyrics={},bg={};
 for(const s of SG){const ly=s.id===SG[ci].id?L:lyricsFor(s.id);if(ly&&ly.length)lyrics[s.id]=ly;
-const b=bgFor(s.id);if(b.type==='none')continue;const o={type:b.type,color:b.color};
+const b=bgFor(s.id);if(b.type==='none')continue;const o={type:b.type,color:b.color,vstart:b.vstart||0,voff:b.voff||0};
 if(b.type==='video'){const x=await vidFor(s.id);if(x){if(x.pub)o.video=x.pub;else if(x.file||String(x.src).startsWith('data:')){ghSt('Uploading background for '+s.title+'…');const vb=await getBlob(x.file||x.src),vp='data/'+s.id+'-v'+Date.now()+'.'+extOf(vb,'mp4');await putFile(vp,await b64(vb),'Add background video',true);x.pub=vp;o.video=vp}else o.video=x.src}else o.type='none'}
 bg[s.id]=o}
 ghSt('Saving library…');await putFile('data/library.json',await b64(new Blob([JSON.stringify({version:1,songs,overrides,albums:ALB,deleted:[...new Set(DEL)],lyrics,bg})])),'Update Spiceify library',false);
