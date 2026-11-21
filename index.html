@@ -514,6 +514,34 @@ EMB.lyrics=Object.assign({},EMB.lyrics,j.lyrics||{});EMB.bg=Object.assign({},EMB
 Object.entries(j.overrides||{}).forEach(([id,o])=>{const s=SG.find(z=>z.id===id);if(!s)return;if(o.title)s.title=o.title;if(o.artist)s.artist=o.artist;if(o.audio)s.src=u(o.audio);if(o.cover)s.cover=u(o.cover);s.remote={audio:o.audio||null,cover:o.cover||null}});
 RDEL.push(...(j.deleted||[]));if(!ALBLOCAL&&Array.isArray(j.albums))ALB=j.albums;
 L=loadL();render();renderSongs();applyBg();syncLike();applyOvr();applyDel()}catch(e){}}
+/* ---- auto-add: any audio (+ matching jpg cover) dropped into data/ on the repo shows up as a song ---- */
+const DEFAULT_REPO={repo:'piggythepro89967-maker/SpiceifyNEW',branch:'main'};
+const AUD_RE=/\.(mp3|wav|ogg|m4a|flac|aac|opus|wma)$/i,IMG_RE=/\.(jpe?g|png|webp)$/i,OWN_RE=/^data\/s\d+-[acv]\d*\.[a-z0-9]+$/i;
+const hid=s=>{let h=5381;for(let i=0;i<s.length;i++)h=(h*33^s.charCodeAt(i))>>>0;return 'd'+h.toString(36)};
+function guessMeta(path){const parts=path.replace(/^data\//,'').split('/'),file=parts.pop().replace(/\.[^.]+$/,'');
+const name=file.replace(/_/g,' ').replace(/^\s*\d{1,3}\s*[.\-)]\s*/,'').trim()||file;let artist='',title=name;
+const m=name.split(/\s+-\s+/);if(m.length>1){artist=m.shift().trim();title=m.join(' - ').trim()}else if(parts.length)artist=parts[parts.length-1].replace(/_/g,' ');
+return{title:title||file,artist:artist||'Unknown artist'}}
+async function discoverData(){try{
+const g=GHC(),R=/^[\w.-]+\/[\w.-]+$/.test(g.repo)?{repo:g.repo,branch:g.branch||'main'}:(EMB.repo||DEFAULT_REPO),br=R.branch||'main';
+let paths=null;
+try{const api='https://api.github.com/repos/'+R.repo+'/git/trees/'+encodeURIComponent(br)+'?recursive=1',h={Accept:'application/vnd.github+json'};
+let r=await fetch(api,{headers:g.token?{...h,Authorization:'Bearer '+g.token}:h,cache:'no-store'});
+if(!r.ok&&g.token)r=await fetch(api,{headers:h,cache:'no-store'});
+if(r.ok)paths=(await r.json()).tree.filter(x=>x.type==='blob').map(x=>x.path)}catch(e){}
+if(!paths){try{const r=await fetch('https://data.jsdelivr.com/v1/packages/gh/'+R.repo+'@'+encodeURIComponent(br)+'?structure=flat');if(r.ok)paths=(await r.json()).files.map(f=>f.name.replace(/^\//,''))}catch(e){}}
+if(!paths)return;
+paths=paths.filter(p=>p.startsWith('data/'));
+const known=new Set();SG.forEach(s=>{if(s.remote){if(s.remote.audio)known.add(s.remote.audio);if(s.remote.cover)known.add(s.remote.cover)}});
+const imgs=new Map();paths.filter(p=>IMG_RE.test(p)).forEach(p=>imgs.set(p.replace(/\.[^.\/]+$/,'').toLowerCase(),p));
+const url=p=>'https://raw.githubusercontent.com/'+R.repo+'/'+encodeURIComponent(br)+'/'+p.split('/').map(encodeURIComponent).join('/');
+let added=0;
+paths.filter(p=>AUD_RE.test(p)&&!OWN_RE.test(p)&&!known.has(p)).sort().forEach(p=>{const id=hid(p);if(SG.some(z=>z.id===id))return;
+const base=p.replace(/\.[^.\/]+$/,'').toLowerCase(),dir=p.slice(0,p.lastIndexOf('/')+1).toLowerCase();
+const cp=imgs.get(base)||imgs.get(dir+'cover')||imgs.get(dir+'folder')||null,m=guessMeta(p);
+SG.push({id,title:m.title,artist:m.artist,src:url(p),cover:cp?url(cp):DCOVER,remote:{audio:p,cover:cp}});added++});
+if(added){render();renderSongs();applyDel();syncLike()}
+}catch(e){}}
 let DEL=[],RDEL=[],OVR={};
 try{DEL=JSON.parse(localStorage.getItem('spiceify-deleted')||'[]');OVR=JSON.parse(localStorage.getItem('spiceify-ovr')||'{}')}catch(e){}
 if(!Array.isArray(DEL))DEL=[];if(!OVR||typeof OVR!=='object')OVR={};RDEL.push(...(EMB.deleted||[]));
@@ -586,7 +614,7 @@ w.addEventListener('pagehide',()=>{if(POP===w){POP=null;popEls=[]}});
 popCover();popRender()}
 $('popt').onclick=$('popb').onclick=popOpen;
 addEventListener('pagehide',()=>{try{if(POP&&!POP.closed)POP.close()}catch(e){}});
-render();renderSongs();window.__lp=[loadSaved(),loadRemote()];applyBg();syncLike();applyOvr();applyDel();try{if(sessionStorage.getItem('spiceify-owner'))setOwner(true)}catch(e){}
+render();renderSongs();window.__lp=[loadSaved(),loadRemote().then(discoverData)];applyBg();syncLike();applyOvr();applyDel();try{if(sessionStorage.getItem('spiceify-owner'))setOwner(true)}catch(e){}
 (function(){const L=window.SPL;if(window.SPLOGO){const im=$('logob').firstChild;if(im)im.src=window.SPLOGO}if(!L)return;const lt=document.body.classList.contains('lite');
 const T=(name,p,ms)=>{L.add(name);Promise.race([Promise.resolve(p),new Promise(r=>setTimeout(r,ms))]).catch(()=>{}).then(()=>L.done())};
 T('Loading fonts…',document.fonts?document.fonts.ready:0,2500);
