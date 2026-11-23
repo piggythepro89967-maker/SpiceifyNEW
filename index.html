@@ -17,6 +17,22 @@ header{grid-column:1/-1;display:flex;align-items:center;gap:14px}
 .vh{display:flex;align-items:center;gap:8px;padding:12px 8px 6px;font-size:13px;color:var(--dim);border-top:1px solid var(--line);margin-top:8px}.vh b{color:var(--text);font-size:14px}.vh .dl{margin-left:auto;background:none;border:0;color:#ff8a8a;cursor:pointer;font:inherit}
 .acts{display:flex;gap:10px;margin-top:4px}.acts button{background:none;border:1px solid var(--line);color:var(--text);border-radius:99px;width:38px;height:38px;font-size:18px;cursor:pointer}.acts button:hover{border-color:var(--acc)}.acts .on{border-color:var(--acc)}
 .modal .danger{color:#ff8a8a;border-color:#6b2c2c}
+#snow{z-index:15;pointer-events:none;display:none}body.xmas #snow{display:block}
+.lights{display:none;position:relative;width:100%;height:32px;margin-top:8px;box-sizing:border-box;padding:0 8px;justify-content:space-between;align-items:flex-start}body.xmas .lights{display:flex}body.cin .lights{display:none!important}
+.lights::before{content:"";position:absolute;left:0;right:0;top:4px;height:2px;background:#1f6b2a;border-radius:2px}
+.lights i{position:relative;top:5px;width:12px;height:18px;border-radius:50% 50% 55% 55%/40% 40% 60% 60%;background:var(--c);box-shadow:0 0 10px 2px var(--c);animation:twk 2.4s ease-in-out infinite;animation-delay:calc(var(--k)*.3s)}.lights i:nth-child(even){top:8px}
+.lights i::before{content:"";position:absolute;left:3px;top:-5px;width:6px;height:6px;background:#2b2b2b;border-radius:2px}
+@keyframes twk{0%,100%{opacity:1}50%{opacity:.4}}body.lite .lights i{animation:none;box-shadow:0 0 6px 1px var(--c)}@media(prefers-reduced-motion:reduce){.lights i{animation:none}}
+body.xmas{--acc:#ee3b3b}
+body.xmas .lib{display:flex;flex-direction:column}
+body.xmas .lib::after{content:"";flex:none;position:sticky;bottom:0;height:44px;margin:auto -10px -16px;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20160%2040%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M0%2022%20Q20%204%2040%2020%20T80%2020%20T120%2020%20T160%2020%20V40%20H0Z%22%20fill%3D%22%23a9c1e3%22/%3E%3Cpath%20d%3D%22M0%2028%20Q20%2012%2040%2026%20T80%2026%20T120%2026%20T160%2026%20V40%20H0Z%22%20fill%3D%22%23e8f0fb%22/%3E%3C/svg%3E") repeat-x left bottom/160px 44px;pointer-events:none}
+body.xmas .ctl .pp{background:radial-gradient(circle at 35% 30%,#ff7b7b,#d32f2f 70%);color:#fff;box-shadow:0 0 18px rgba(255,70,70,.55)}body.xmas .ctl .pp:hover{color:#fff}
+body.xmas .logo .lg{position:relative;overflow:visible}body.xmas .logo .lg::after{content:"";position:absolute;left:-7px;top:-13px;width:32px;height:26px;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2026%22%3E%3Cpath%20d%3D%22M3%2021%20Q7%205%2021%203%20Q19%2012%2028%2019%20Z%22%20fill%3D%22%23d62f2f%22/%3E%3Cpath%20d%3D%22M3%2021%20Q7%205%2021%203%22%20fill%3D%22none%22%20stroke%3D%22%23f26a6a%22%20stroke-width%3D%221.5%22/%3E%3Crect%20x%3D%222%22%20y%3D%2218%22%20width%3D%2227%22%20height%3D%226%22%20rx%3D%223%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%2223%22%20cy%3D%224%22%20r%3D%223.4%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E") no-repeat center/contain;transform:rotate(-12deg);pointer-events:none}
+body.xmas .lib h3,body.xmas .home h1,body.xmas .hsec h2,body.xmas .ctx b,body.xmas .tt-brand span{font-family:'Mountains of Christmas',cursive;letter-spacing:.01em}
+body.xmas .lib h3{font-size:21px}body.xmas .home h1{font-size:34px}body.xmas .hsec h2{font-size:27px}body.xmas .ctx b{font-size:34px}
+body.xmas .l.on,body.xmas .pln.on{background:rgba(255,255,255,.18)}
+
+#ghm{z-index:120}.tt-brand .ttpub{width:auto;padding:0 14px;font-weight:700;background:#2a2644;color:#cfc8ff}.tt-brand .ttpub.dirty{background:#7c6cff;color:#fff}.tt-saved{max-width:260px}
 #mdm>div{width:min(460px,100%)}#mdl{max-height:36vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px}.modal .mdr{display:flex;flex-direction:row;align-items:center;gap:10px;padding:6px 4px;border-radius:8px;cursor:pointer;color:var(--text);font-size:15px}.mdr:hover{background:rgba(120,150,255,.1)}.mdr img{width:36px;height:36px;border-radius:6px;object-fit:cover}.mdr span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mdr input{width:auto}.modal .mda{border-bottom:1px solid var(--line);border-radius:0}.modal button:disabled{opacity:.45;cursor:default}
 .ttml{position:fixed;inset:0;z-index:90;background:#101012;color:#e9e7f2;display:flex;flex-direction:column;font:14px/1.4 Inter,system-ui,sans-serif}.ttml[hidden]{display:none}
 .ttml button{font:inherit;cursor:pointer}
@@ -155,7 +171,7 @@ input[type=range]{flex:1;accent-color:var(--acc);height:4px;cursor:pointer}
 .ctl .on{color:var(--acc)}
 .vol{display:flex;align-items:center;gap:6px;width:100%}
 .hint{margin-top:auto;font-size:12px;color:var(--dim);text-align:center;padding-top:10px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,40px);background:#fff;color:#000;padding:10px 18px;border-radius:99px;font-weight:600;opacity:0;transition:.3s;z-index:9;pointer-events:none}.toast.s{opacity:1;transform:translate(-50%,0)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,40px);background:#fff;color:#000;padding:10px 18px;border-radius:99px;font-weight:600;opacity:0;transition:.3s;z-index:200;pointer-events:none}.toast.s{opacity:1;transform:translate(-50%,0)}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .edb{background:#14264b;border:1px solid var(--line);color:var(--text);border-radius:99px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}.edb:hover{border-color:var(--acc)}
 .ed{position:absolute;inset:0;z-index:3;overflow:auto;padding:18px;background:#08122a;display:flex;flex-direction:column;gap:12px}.ed[hidden]{display:none}
@@ -216,7 +232,7 @@ window.SPL={add(n){tasks++;if(n)tx.textContent=n},done(){doneN++;if(allDone()&&f
 setTimeout(()=>{if(!stopped){tasks=doneN=Math.max(1,doneN);finishReq=true}},14000);
 })();
 </script>
-<video id="bgv" class="bgv" muted loop playsinline hidden></video><div id="bgc" class="bgc" hidden></div><div id="bgo" class="bgo" hidden></div><div id="cbg" class="cbg"></div><canvas id="sky"></canvas>
+<video id="bgv" class="bgv" muted loop playsinline hidden></video><div id="bgc" class="bgc" hidden></div><div id="bgo" class="bgo" hidden></div><div id="cbg" class="cbg"></div><canvas id="sky"></canvas><canvas id="snow" aria-hidden="true"></canvas>
 <div class="app" id="app">
 <header><div class="logo"><button class="lg" id="logob" aria-label="Download all songs" title="Download all songs"><img alt="" width="32" height="32"></button><span><button class="sl" id="sbtn" aria-label="Owner login">S</button>piceif<button class="sl" id="ybtn" aria-label="Import songs" title="Import songs">y</button></span></div><input class="search" id="sq" placeholder="Search songs, artists or albums" aria-label="Search" autocomplete="off"><button class="edb" id="acctb" hidden>Sign in</button><button class="edb" id="ownb" hidden aria-haspopup="menu" aria-expanded="false">👑 Owner ▾</button></header>
 <aside class="panel lib"><h3>Your Library <button id="newpl" aria-label="New playlist">＋</button></h3><div id="pls"></div></aside>
@@ -234,8 +250,8 @@ setTimeout(()=>{if(!stopped){tasks=doneN=Math.max(1,doneN);finishReq=true}},1400
 <h2 id="ti">Flashing Lights</h2><p id="ar">Kayne West, Dwele ✓</p><div class="acts"><button id="likeb" aria-label="Like" aria-pressed="false">♡</button><button id="plb" aria-label="Add to playlist">＋</button><button id="popb" aria-label="Pop out lyrics" title="Pop out lyrics">⧉</button></div>
 <div class="bar"><span id="cur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek"><span id="dur">3:57</span></div>
 <div class="ctl"><button id="shuf" aria-label="Shuffle">⇄</button><button id="prev" aria-label="Restart">⏮</button><button class="pp" id="pp" aria-label="Play">▶</button><button id="next" aria-label="Skip 15 seconds">⏭</button><button id="rep" aria-label="Repeat">↻</button></div><div class="lyrow"><button id="lyb" class="on" aria-label="Lyrics" title="Show or hide lyrics"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button></div>
-<div class="vol"><button id="mute" aria-label="Mute">🔊</button><input type="range" id="vol" min="0" max="100" value="80" aria-label="Volume"></div>
-<div class="hint">Click any lyric line to jump to it<button id="lite" class="liteb">⚡ Lite mode</button></div></aside>
+<div class="vol"><button id="mute" aria-label="Mute">🔊</button><input type="range" id="vol" min="0" max="100" value="80" aria-label="Volume"></div><div class="lights" id="lights" aria-hidden="true"></div>
+<div class="hint">Click any lyric line to jump to it<button id="lite" class="liteb">⚡ Lite mode</button><button id="xm" class="liteb">🎄 Christmas theme</button></div></aside>
 </div><div class="modal" id="pw" hidden><div><b>Enter password</b><input type="password" id="pwi" autocomplete="off" aria-label="Password"><div class="err" id="pwe"></div><button class="pri" id="pwok">Enter</button><button id="pwx">Cancel</button></div></div>
 <div class="modal" id="addm" hidden><div><b>Add song</b><label>Title<input id="nt"></label><label>Artist<input id="na"></label><label>Audio file<input type="file" id="nf" accept="audio/*"></label><label>Cover image (optional)<input type="file" id="nc" accept="image/*"></label><div class="err" id="ne"></div><button class="pri" id="nok">Add song</button><button id="nx2">Cancel</button></div></div>
 <div class="modal" id="bgm" hidden><div><b>Background for this song</b><label>Style<select id="bgt"><option value="none">Default night sky</option><option value="color">Solid color</option><option value="video">Music video</option></select></label><label id="bgcl" hidden>Color<input type="color" id="bgcol" value="#0a1f44"></label><label id="bgvl" hidden>Video file<input type="file" id="bgf" accept="video/*"></label><label id="bgsl" hidden>Show the video from this point in the song (m:ss)<input id="bgst" placeholder="0:00"></label><label id="bgol" hidden>Start the video at this point of the video file (m:ss)<input id="bgot" placeholder="0:00"></label><div class="err" id="bge"></div><button class="pri" id="bgok">Save background</button><button id="bgx">Cancel</button></div></div>
@@ -252,7 +268,7 @@ setTimeout(()=>{if(!stopped){tasks=doneN=Math.max(1,doneN);finishReq=true}},1400
 <div class="tt-top"><div class="tt-menu" id="ttmenus"><button data-m="file">File</button><button data-m="edit">Edit</button><button data-m="tools">Tools</button><button data-m="help">Help</button></div>
 <button class="tt-hist" id="ttundo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button><span class="tt-fn" id="ttfn">lyric.ttml</span><span class="tt-saved" id="ttsaved"></span>
 <div class="tt-tabs"><button data-t="edit" class="on">Edit</button><button data-t="time">Time</button><button data-t="prev">Preview</button></div>
-<div class="tt-brand"><span>☰ Spiceify Lyrics Tool</span><button id="ttx" aria-label="Close editor" title="Close (Esc)">✕</button></div></div>
+<div class="tt-brand"><span>☰ Spiceify Lyrics Tool</span><button class="ttpub" id="ttpub" title="Publish your lyrics so everyone sees them">☁ Publish</button><button id="ttx" aria-label="Close editor" title="Close (Esc)">✕</button></div></div>
 <div class="tt-rib" id="ttrib"></div>
 <div class="tt-main"><div class="tt-list" id="ttlist"></div><div class="tt-prev" id="ttprev"><div class="pvbg" id="pvbg"></div><div class="pvl" id="pvl"></div></div></div>
 <div class="tt-bar"><button class="ttb" id="ttnote" title="Song" aria-label="Song">♪</button><button class="ttb" id="ttplay" aria-label="Play or pause">▶</button><span class="tmono" id="ttcur">00:00.000</span>
@@ -260,7 +276,7 @@ setTimeout(()=>{if(!stopped){tasks=doneN=Math.max(1,doneN);finishReq=true}},1400
 <label class="ttsp">Speed<input type="range" id="tts" min="0.25" max="2" step="0.05" value="1" aria-label="Playback speed"><button id="ttsv" title="Reset to 1×">1.00×</button></label></div>
 <div class="ttmenu" id="ttmenu" hidden></div><div class="ttd" id="ttd" hidden></div><input type="file" id="ttfile" accept=".lrc,.txt,.json,.ttml,.xml" hidden>
 </div>
-<div class="modal" id="mdm" hidden><div><b>Delete songs</b><input id="mdq" placeholder="Type a name to select every match…" aria-label="Filter songs" autocomplete="off"><label class="mdr mda"><input type="checkbox" id="mdall"><span>Select all shown</span></label><div id="mdl"></div><p class="sm" id="mdn"></p><div class="err" id="mde"></div><button id="mddel" class="danger">Delete selected</button><button id="mdx">Cancel</button></div></div>
+<div class="modal" id="mdm" hidden><div><b>Delete songs</b><input id="mdq" placeholder="Filter songs…" aria-label="Filter songs" autocomplete="off"><label class="mdr mda"><input type="checkbox" id="mdall"><span>Select all shown</span></label><div id="mdl"></div><p class="sm" id="mdn"></p><div class="err" id="mde"></div><button id="mddel" class="danger">Delete selected</button><button id="mdx">Cancel</button></div></div>
 <div class="sres" id="sres" hidden></div>
 <div class="modal" id="alm" hidden><div><b id="alt">New album</b><label>Album name<input id="aln" maxlength="60"></label><label>Artist (optional)<input id="alar" maxlength="60"></label><label>Add a song<span class="rowf"><select id="alsel"></select><button id="aladd">Add</button><button id="aladdall">Add all</button></span></label><div id="allist"></div><div class="err" id="ale"></div><button class="pri" id="alok">Save album</button><button id="aldel" class="danger" hidden>Delete album</button><button id="alx">Cancel</button></div></div>
 <div class="toast" id="toast"></div>
@@ -275,7 +291,7 @@ const keyOf=id=>id==='fl'?'spiceify-lyrics-v1':'spiceify-lyrics-'+id;
 function lyricsFor(id){const k=keyOf(id);if(MEM[k])return MEM[k];try{const v=JSON.parse(localStorage.getItem(k));if(Array.isArray(v))return v}catch(e){}if(EMB.lyrics&&Array.isArray(EMB.lyrics[id]))return EMB.lyrics[id].map(x=>x.slice());return id==='fl'?DEF.map(x=>x.slice()):[]}
 function loadL(){KEY=keyOf(SG[ci].id);return lyricsFor(SG[ci].id)}
 let L=loadL();
-const save=()=>{MEM[KEY]=JSON.parse(JSON.stringify(L));try{localStorage.setItem(KEY,JSON.stringify(L))}catch(e){}};
+const save=()=>{setDirty(true);MEM[KEY]=JSON.parse(JSON.stringify(L));try{localStorage.setItem(KEY,JSON.stringify(L))}catch(e){}};
 const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'),f2=s=>Math.floor(s/60)+':'+(s%60).toFixed(1).padStart(4,'0');
 const parse=v=>v.includes(':')?(+v.split(':')[0])*60+parseFloat(v.split(':')[1]):parseFloat(v);
 let els=[],act=-1,actGap=false;
@@ -331,7 +347,7 @@ const idbGet=async k=>{const d=await idb();return new Promise((res,rej)=>{const 
 let QUEUE=null,QCOL=null,COL=null,ALB=[],ALBLOCAL=false,alEdit=null,alSel=[];
 try{const v=JSON.parse(localStorage.getItem('spiceify-albums'));if(Array.isArray(v)){ALB=v;ALBLOCAL=true}}catch(e){}
 if(!ALBLOCAL&&Array.isArray(EMB.albums))ALB=EMB.albums;
-const saveAlb=()=>{ALBLOCAL=true;try{localStorage.setItem('spiceify-albums',JSON.stringify(ALB))}catch(e){}};
+const saveAlb=()=>{setDirty(true);ALBLOCAL=true;try{localStorage.setItem('spiceify-albums',JSON.stringify(ALB))}catch(e){}};
 const mkb=(tx,fn,al)=>{const b=document.createElement('button');b.textContent=tx;b.onclick=fn;if(al)b.setAttribute('aria-label',al);return b};
 const songById=id=>SG.find(z=>z.id===id),nS=k=>k+(k===1?' song':' songs');
 const onCol=(ty,id)=>[COL,QCOL].some(c=>c&&c.type===ty&&(ty==='liked'||c.id===id));
@@ -577,7 +593,7 @@ bg[s.id]=o}
 ghSt('Saving library…');await putFile('data/library.json',await b64(new Blob([JSON.stringify({version:1,songs,overrides,albums:ALB,backend:BACKEND||undefined,deleted:[...new Set(DEL)],lyrics,bg})])),'Update Spiceify library',false);
 OVR={};saveOvr();
 try{const g=GHC();fetch('https://purge.jsdelivr.net/gh/'+g.repo+'@'+(g.branch||'main')+'/data/library.json',{mode:'no-cors'}).catch(()=>{})}catch(e){}
-ghSt('Published! It can take a minute or two to show up for everyone.');toast('Published to GitHub')}
+setDirty(false);ghSt('Published! It can take a minute or two to show up for everyone.');toast('Published to GitHub')}
 catch(e){ghSt(e instanceof TypeError?'Could not reach GitHub while sending '+ghCur+'. Check your internet, turn off ad blockers for this site, and use your own hosted page (not the Claude preview). Very large files can also fail. Press Publish now to retry.':(e&&e.message?e.message:'Could not publish. Check your connection and try again.'))}
 ghBusy=false;$('ghok').disabled=false}
 function afterImport(){const c=GHC();if(/^[\w.-]+\/[\w.-]+$/.test(c.repo)&&c.token){$('ghm').hidden=false;publishAll()}else openGh('Connect GitHub to keep these songs forever for everyone.')}
@@ -598,7 +614,7 @@ L=loadL();render();renderSongs();applyBg();syncLike();applyOvr();applyDel();star
 let DEL=[],RDEL=[],OVR={};
 try{DEL=JSON.parse(localStorage.getItem('spiceify-deleted')||'[]');OVR=JSON.parse(localStorage.getItem('spiceify-ovr')||'{}')}catch(e){}
 if(!Array.isArray(DEL))DEL=[];if(!OVR||typeof OVR!=='object')OVR={};RDEL.push(...(EMB.deleted||[]));
-const saveDel=()=>{try{localStorage.setItem('spiceify-deleted',JSON.stringify(DEL))}catch(e){}},saveOvr=()=>{try{localStorage.setItem('spiceify-ovr',JSON.stringify(OVR))}catch(e){}};
+const saveDel=()=>{setDirty(true);try{localStorage.setItem('spiceify-deleted',JSON.stringify(DEL))}catch(e){}},saveOvr=()=>{setDirty(true);try{localStorage.setItem('spiceify-ovr',JSON.stringify(OVR))}catch(e){}};
 const idbDel=async k=>{try{const d=await idb();return new Promise(res=>{const x=d.transaction('f','readwrite');x.objectStore('f').delete(k);x.oncomplete=res;x.onerror=res})}catch(e){}};
 function refreshCur(){const s=SG[ci];if(!s)return;$('ti').textContent=s.title;$('ar').textContent=s.artist;$('disc').src=s.cover;if(au.paused&&new URL(s.src,location.href).href!==au.src){au.src=s.src;au.load()}applyBg()}
 async function applyOvr(){for(const s of SG){const o=OVR[s.id];if(!o)continue;if(o.title)s.title=o.title;if(o.artist)s.artist=o.artist;
@@ -776,7 +792,7 @@ const tlKey=()=>'spiceify-tl-'+SG[ci].id;
 const fT=s=>s==null?'':String(Math.floor(s/60)).padStart(2,'0')+':'+(s%60).toFixed(3).padStart(6,'0');
 const tlFromL=a=>a.map(x=>({s:x[1],t:x[0],e:x.length>2&&x[2]!=null?x[2]:null}));
 const lyOfT=a=>a.filter(l=>l.t!=null&&String(l.s).trim()).map(l=>l.e!=null?[l.t,l.s,l.e]:[l.t,l.s]).sort((x,y)=>x[0]-y[0]);
-function tlCommit(){L=lyOfT(TL);save();render();try{localStorage.setItem(tlKey(),JSON.stringify(TL))}catch(e){}ttMarks();$('ttsaved').textContent='Saved '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+function tlCommit(){L=lyOfT(TL);save();render();try{localStorage.setItem(tlKey(),JSON.stringify(TL))}catch(e){}ttMarks();ttUpd()}
 function snap(){TLU.push(JSON.stringify(TL));if(TLU.length>60)TLU.shift();TLR=[]}
 function undo(){if(!TLU.length)return;TLR.push(JSON.stringify(TL));TL=JSON.parse(TLU.pop());tlCommit();ttRender()}
 function redo(){if(!TLR.length)return;TLU.push(JSON.stringify(TL));TL=JSON.parse(TLR.pop());tlCommit();ttRender()}
@@ -785,7 +801,7 @@ function openTT(){let d=null;try{d=JSON.parse(localStorage.getItem(tlKey())||'nu
 TL=Array.isArray(d)&&JSON.stringify(lyOfT(d))===JSON.stringify(L)?d:tlFromL(L);TLU=[];TLR=[];TLC=0;TLL=null;TLT='edit';ttAct='';
 $('ttfn').textContent=SG[ci].title+'.ttml';$('ttml').hidden=false;$('ttml').dataset.t='edit';document.querySelectorAll('.tt-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==='edit'));
 ttRender();pvRender();ttMarks();spd(1);if(!ttLooping){ttLooping=true;ttLoop()}}
-function closeTT(){if($('ttml').hidden)return;$('ttml').hidden=true;$('ttmenu').hidden=true;$('ttd').hidden=true;au.playbackRate=1;spd(1)}
+function closeTT(){if($('ttml').hidden)return;$('ttml').hidden=true;$('ttmenu').hidden=true;$('ttd').hidden=true;au.playbackRate=1;spd(1);if(PUBDIRTY)toast('Lyrics saved on this device. Press ☁ Publish to share them with everyone.')}
 function ttLoop(){if($('ttml').hidden){ttLooping=false;return}tick();ttTick();requestAnimationFrame(ttLoop)}
 function ttTab(m){TLT=m;ttAct='';$('ttml').dataset.t=m;document.querySelectorAll('.tt-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===m));if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();ttRender();setTimeout(()=>pvSync(Math.max(act,-1),actGap),60)}
 function ttCur(){const rs=$('ttlist').querySelectorAll('.tr2');rs.forEach((r,i)=>r.classList.toggle('cur',i===TLC));if(TLT==='time'&&rs[TLC])rs[TLC].scrollIntoView({block:'nearest',behavior:'smooth'})}
@@ -882,12 +898,36 @@ v.forEach(s=>{const lb=document.createElement('label');lb.className='mdr';const 
 const im=document.createElement('img');im.alt='';im.src=s.cover;const sp=document.createElement('span');sp.textContent=s.title+' — '+s.artist;lb.append(cb,im,sp);l.appendChild(lb)});
 if(!v.length){const p=document.createElement('p');p.className='sm';p.textContent='No songs match.';l.appendChild(p)}mdCount()}
 function openMd(){if(!owner)return;mdSel=new Set();$('mdq').value='';mdRender();$('mdm').hidden=false}
-$('mnmd').onclick=openMd;$('mdx').onclick=()=>$('mdm').hidden=true;$('mdq').oninput=()=>{mdSel=new Set(norm($('mdq').value)?mdVis().map(s=>s.id):[]);mdRender()};
+$('mnmd').onclick=openMd;$('mdx').onclick=()=>$('mdm').hidden=true;$('mdq').oninput=mdRender;
 $('mdall').onchange=()=>{const v=mdVis();if($('mdall').checked)v.forEach(s=>mdSel.add(s.id));else v.forEach(s=>mdSel.delete(s.id));mdRender()};
 $('mddel').onclick=()=>{if(!owner)return;const b=$('mddel');if(mdSel.size>=SG.length){$('mde').textContent='Keep at least one song in the library.';return}
 if(b.dataset.arm!=='1'){b.dataset.arm='1';b.textContent='Click again to delete '+mdSel.size+' song'+(mdSel.size===1?'':'s');setTimeout(()=>{if(b.dataset.arm==='1'){b.dataset.arm='';b.textContent='Delete selected'}},4000);return}
 const ids=[...mdSel];ids.forEach(id=>{const i=SG.findIndex(s=>s.id===id);if(i>=0)deleteSong(i)});mdSel=new Set();$('mdm').hidden=true;renderSongs();if(COL)renderCol();if(HOME)renderHome();
 toast(ids.length+' song'+(ids.length===1?'':'s')+' deleted. Press ☁ Publish to remove them for everyone.')};
+let PUBDIRTY=false;try{PUBDIRTY=localStorage.getItem('spiceify-dirty')==='1'}catch(e){}
+function ttUpd(){const s=$('ttsaved'),b=$('ttpub');if(s)s.textContent=PUBDIRTY?'Saved on this device · not published yet':'Saved';if(b)b.classList.toggle('dirty',PUBDIRTY)}
+function setDirty(v){PUBDIRTY=v;try{localStorage.setItem('spiceify-dirty',v?'1':'0')}catch(e){}try{ttUpd();$('ownb').textContent=v?'👑 Owner ● ▾':'👑 Owner ▾';$('ghbtn').textContent=v?'☁ Publish ●':'☁ Publish'}catch(e){}}
+$('ttpub').onclick=()=>{const c=GHC();if(/^[\w.-]+\/[\w.-]+$/.test(c.repo)&&c.token){$('ghm').hidden=false;publishAll()}else openGh('Enter your repository and your token to publish your lyrics.')};
+setDirty(PUBDIRTY);
+// ===== Christmas theme =====
+const snC=$('snow'),snX=snC.getContext('2d');let SF=[],snW=0,snH=0,snOn=false,snRAF=0,snLast=0,xPref='auto';
+try{xPref=localStorage.getItem('spiceify-xmas')||'auto'}catch(e){}
+function snSize(){const lt=document.body.classList.contains('lite'),d=lt?1:Math.min(devicePixelRatio||1,2);snW=innerWidth;snH=innerHeight;snC.width=snW*d;snC.height=snH*d;snX.setTransform(d,0,0,d,0,0);
+const n=Math.min(lt?45:150,Math.floor(snW*snH/10000));SF=Array.from({length:n},()=>({x:Math.random()*snW,y:Math.random()*snH,r:Math.random()*2.6+.8,v:Math.random()*28+14,s:Math.random()*6.28,w:Math.random()*.8+.3}))}
+function snDraw(){snX.clearRect(0,0,snW,snH);snX.fillStyle='#fff';for(const f of SF){snX.globalAlpha=.35+f.r/4;snX.beginPath();snX.arc(f.x,f.y,f.r,0,6.283);snX.fill()}snX.globalAlpha=1}
+function snFrame(now){if(!snOn)return;const dt=Math.min(.05,(now-snLast)/1000||0);snLast=now;
+for(const f of SF){f.y+=f.v*dt;f.s+=dt*f.w;f.x+=Math.sin(f.s)*12*dt;if(f.y>snH+5){f.y=-5;f.x=Math.random()*snW}if(f.x>snW+5)f.x=-5;if(f.x<-5)f.x=snW+5}
+snDraw();snRAF=requestAnimationFrame(snFrame)}
+function snow(on){snOn=on;cancelAnimationFrame(snRAF);if(!on){snX.clearRect(0,0,snW,snH);return}snSize();snLast=performance.now();if(matchMedia('(prefers-reduced-motion:reduce)').matches)snDraw();else snRAF=requestAnimationFrame(snFrame)}
+addEventListener('resize',()=>{if(snOn){snSize();lightsBuild()}});
+document.addEventListener('visibilitychange',()=>{if(!snOn)return;cancelAnimationFrame(snRAF);if(!document.hidden){snLast=performance.now();snRAF=requestAnimationFrame(snFrame)}});
+function lightsBuild(){const l=$('lights');if(!l)return;l.innerHTML='';const w=l.clientWidth||300,n=Math.max(6,Math.floor(w/26)),cs=['#ff3b3b','#2fd35c','#3b82ff','#f4f4ff'];for(let i=0;i<n;i++){const b=document.createElement('i');b.style.setProperty('--c',cs[i%4]);b.style.setProperty('--k',i%8);l.appendChild(b)}}
+const xDate=()=>{const d=new Date(),m=d.getMonth()+1,dy=d.getDate();return(m===11&&dy>=20)||m===12||(m===1&&dy<=6)};
+function applyXmas(){const on=xPref==='on'||(xPref==='auto'&&xDate());document.body.classList.toggle('xmas',on);snow(on);if(on){lightsBuild();if(!document.getElementById('xfont')){const k=document.createElement('link');k.id='xfont';k.rel='stylesheet';k.href='https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&display=swap';document.head.appendChild(k)}}
+$('xm').textContent='🎄 Christmas theme: '+(xPref==='auto'?'auto ('+(on?'on':'off')+')':xPref)}
+$('xm').onclick=()=>{xPref=xPref==='auto'?'on':xPref==='on'?'off':'auto';try{localStorage.setItem('spiceify-xmas',xPref)}catch(e){}applyXmas()};
+$('lite').addEventListener('click',()=>setTimeout(()=>{if(snOn)snSize()},60));
+applyXmas();
 render();renderSongs();window.__lp=[loadSaved(),loadRemote()];applyBg();syncLike();applyOvr();applyDel();try{if(sessionStorage.getItem('spiceify-owner'))setOwner(true)}catch(e){}
 (function(){const L=window.SPL;if(window.SPLOGO){const im=$('logob').firstChild;if(im)im.src=window.SPLOGO}if(!L)return;const lt=document.body.classList.contains('lite');
 const T=(name,p,ms)=>{L.add(name);Promise.race([Promise.resolve(p),new Promise(r=>setTimeout(r,ms))]).catch(()=>{}).then(()=>L.done())};
