@@ -303,7 +303,7 @@ setTimeout(()=>{if(!stopped){tasks=doneN=Math.max(1,doneN);finishReq=true}},1400
 <div class="bar"><span id="cur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek"><span id="dur">3:57</span></div>
 <div class="ctl"><button id="shuf" aria-label="Shuffle">⇄</button><button id="prev" aria-label="Restart">⏮</button><button class="pp" id="pp" aria-label="Play">▶</button><button id="next" aria-label="Skip 15 seconds">⏭</button><button id="rep" aria-label="Repeat">↻</button></div><div class="lyrow"><button id="lyb" class="on" aria-label="Lyrics" title="Show or hide lyrics"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button></div>
 <div class="vol"><button id="mute" aria-label="Mute">🔊</button><input type="range" id="vol" min="0" max="100" value="80" aria-label="Volume"></div><div class="lights" id="lights" aria-hidden="true"></div>
-<div class="hint">Click any lyric line to jump to it<button id="lite" class="liteb">⚡ Lite mode</button><button id="xm" class="liteb">🎄 Christmas theme</button></div></aside>
+<div class="hint">Click any lyric line to jump to it<button id="lite" class="liteb">⚡ Lite mode</button><button id="xm" class="liteb">🎄 Christmas theme</button><button id="dsb" class="liteb">🎮 Discord status: off</button></div></aside>
 </div><div class="modal" id="pw" hidden><div><b>Enter password</b><input type="password" id="pwi" autocomplete="off" aria-label="Password"><div class="err" id="pwe"></div><button class="pri" id="pwok">Enter</button><button id="pwx">Cancel</button></div></div>
 <div class="modal" id="addm" hidden><div><b>Add song</b><label>Title<input id="nt"></label><label>Artist<input id="na"></label><label>Audio file<input type="file" id="nf" accept="audio/*"></label><label>Cover image (optional)<input type="file" id="nc" accept="image/*"></label><div class="err" id="ne"></div><button class="pri" id="nok">Add song</button><button id="nx2">Cancel</button></div></div>
 <div class="modal" id="bgm" hidden><div><b>Background for this song</b><label>Style<select id="bgt"><option value="none">Default night sky</option><option value="color">Solid color</option><option value="video">Music video</option></select></label><label id="bgcl" hidden>Color<input type="color" id="bgcol" value="#0a1f44"></label><label id="bgvl" hidden>Video file<input type="file" id="bgf" accept="video/*"></label><label id="bgsl" hidden>Show the video from this point in the song (m:ss)<input id="bgst" placeholder="0:00"></label><label id="bgol" hidden>Start the video at this point of the video file (m:ss)<input id="bgot" placeholder="0:00"></label><div class="err" id="bge"></div><button class="pri" id="bgok">Save background</button><button id="bgx">Cancel</button></div></div>
@@ -1126,6 +1126,19 @@ function ttUpd(){const s=$('ttsaved'),b=$('ttpub');if(s)s.textContent=PUBDIRTY?'
 function setDirty(v){PUBDIRTY=v;try{localStorage.setItem('spiceify-dirty',v?'1':'0')}catch(e){}try{ttUpd();$('ownb').textContent=v?'👑 Owner ● ▾':'👑 Owner ▾';$('ghbtn').textContent=v?'☁ Publish ●':'☁ Publish'}catch(e){}}
 $('ttpub').onclick=()=>{const c=GHC();if(/^[\w.-]+\/[\w.-]+$/.test(c.repo)&&c.token){$('ghm').hidden=false;publishAll()}else openGh('Enter your repository and your token to publish your lyrics.')};
 setDirty(PUBDIRTY);
+// ===== Discord status (needs spiceify_discord.py running on your computer) =====
+let DSON=false,DSLIVE=false;const DSBASE='http://127.0.0.1:47821';
+try{DSON=localStorage.getItem('spiceify-dstatus')==='1'}catch(e){}
+function dsPaint(t){$('dsb').textContent='🎮 Discord status: '+(t||(DSON?'on':'off'))}
+function dsPost(path,body){return fetch(DSBASE+path,{method:'POST',headers:{'Content-Type':'text/plain'},body:body?JSON.stringify(body):''})}
+async function dsSend(){if(!DSON)return;try{if(au.paused||au.ended){if(DSLIVE){DSLIVE=false;await dsPost('/clear')}dsPaint();return}
+const s=SG[ci];if(!s)return;const https=location.protocol==='https:';
+await dsPost('/presence',{title:s.title,artist:String(s.artist||'').replace(/[✓✔]/g,'').trim(),pos:au.currentTime||0,dur:isFinite(au.duration)?au.duration:0,cover:/^https:\/\//.test(s.cover||'')?s.cover:'',url:https?location.origin+location.pathname:''});DSLIVE=true;dsPaint()}
+catch(e){DSLIVE=false;dsPaint('helper not found')}}
+$('dsb').onclick=async()=>{DSON=!DSON;try{localStorage.setItem('spiceify-dstatus',DSON?'1':'0')}catch(e){}dsPaint();if(DSON){try{const r=await fetch(DSBASE+'/ping');const j=await r.json();if(!j.discord)dsPaint('open Discord app');else dsSend()}catch(e){dsPaint('helper not found')}}else if(DSLIVE){DSLIVE=false;try{await dsPost('/clear')}catch(e){}}};
+['playing','pause','seeked','ended'].forEach(e=>au.addEventListener(e,()=>{if(DSON)dsSend()}));
+setInterval(()=>{if(DSON&&!au.paused)dsSend()},20000);
+dsPaint();if(DSON)setTimeout(dsSend,1500);
 // ===== Christmas theme =====
 const snC=$('snow'),snX=snC.getContext('2d');let SF=[],snW=0,snH=0,snOn=false,snRAF=0,snLast=0,xPref='auto';
 try{xPref=localStorage.getItem('spiceify-xmas')||'auto'}catch(e){}
