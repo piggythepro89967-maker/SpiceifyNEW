@@ -1131,35 +1131,54 @@ let DSON=false,DSLIVE=false;const DSBASE='http://127.0.0.1:47821';
 try{DSON=localStorage.getItem('spiceify-dstatus')==='1'}catch(e){}
 function dsPaint(t){$('dsb').textContent='🎮 Discord status: '+(t||(DSON?'on':'off'))}
 function dsPost(path,body){return fetch(DSBASE+path,{method:'POST',headers:{'Content-Type':'text/plain'},body:body?JSON.stringify(body):''})}
-function dsCoverForSong(s){
-  // Published artwork lives in the user's GitHub repository under data/.
-  // Convert that repository path to a public jsDelivr URL so Discord can fetch it.
-  const candidates=[s&&s.cover,s&&s.remote&&s.remote.cover];
-  for(const raw of candidates){
-    if(!raw||typeof raw!=='string')continue;
-    const v=raw.trim();
-    if(!v||v.startsWith('blob:')||v.startsWith('data:'))continue;
-    try{
-      if(/^https:\/\//i.test(v))return v;
-      if(v.startsWith('//'))return 'https:'+v;
-      const cfg=typeof GHC==='function'?GHC():{};
-      const repo=String(cfg.repo||'').trim();
-      const branch=String(cfg.branch||'main').trim()||'main';
-      const path=v.replace(/^\.?\//,'').split('/').map(encodeURIComponent).join('/');
-      if(/^[\w.-]+\/[\w.-]+$/.test(repo)&&path){
-        return 'https://cdn.jsdelivr.net/gh/'+repo+'@'+branch+'/'+path;
-      }
-      const u=new URL(v,location.href);
-      if(u.protocol==='https:')return u.href;
-    }catch(e){}
+// Public artwork source: this is the same GitHub repository used by Publish.
+const DSREPO='piggythepro89967-maker/SpiceifyNEW',DSBRANCH='main';
+const DSCDN='https://cdn.jsdelivr.net/gh/'+DSREPO+'@'+DSBRANCH+'/';
+let dsDataFiles=null,dsDataFilesAt=0,dsDataPromise=null;
+function dsPublicCover(raw){
+  if(!raw||typeof raw!=='string')return '';
+  let v=raw.trim();
+  if(!v||/^(blob:|data:)/i.test(v))return '';
+  // Published library entries store paths like data/<song-id>-c.jpg.
+  if(/^https:\/\//i.test(v)){
+    try{const u=new URL(v);if(u.hostname==='github.com'&&u.pathname.includes('/blob/')){
+      const m=u.pathname.match(/^\/([^/]+\/[^/]+)\/blob\/([^/]+)\/(.+)$/);
+      if(m)return 'https://cdn.jsdelivr.net/gh/'+m[1]+'@'+m[2]+'/'+m[3];
+    }}catch(e){}
+    return v;
   }
+  if(v.startsWith('/'))v=v.slice(1);
+  if(v.startsWith('data/'))return DSCDN+v.split('/').map(encodeURIComponent).join('/');
   return '';
+}
+async function dsFindRepoCover(s){
+  // First use the exact filename saved in data/library.json.
+  const exact=dsPublicCover(s&&s.remote&&s.remote.cover)||dsPublicCover(s&&s.cover);
+  if(exact)return exact;
+  // If an older song entry has no saved cover path, look up its generated
+  // <song-id>-c* filename in the repository's public data folder.
+  const id=String(s&&s.id||'');
+  if(!id)return '';
+  try{
+    if(!dsDataFiles||Date.now()-dsDataFilesAt>10*60*1000){
+      if(!dsDataPromise)dsDataPromise=fetch('https://api.github.com/repos/'+DSREPO+'/contents/data?ref='+DSBRANCH,{headers:{Accept:'application/vnd.github+json'}})
+        .then(r=>{if(!r.ok)throw new Error('GitHub data folder lookup failed: '+r.status);return r.json()})
+        .then(a=>{dsDataFiles=Array.isArray(a)?a:[];dsDataFilesAt=Date.now();return dsDataFiles})
+        .finally(()=>{dsDataPromise=null});
+      await dsDataPromise;
+    }
+    const matches=dsDataFiles.filter(f=>f&&f.type==='file'&&f.name.startsWith(id+'-c')&&/\.(jpe?g|png|webp|gif)$/i.test(f.name));
+    if(!matches.length)return '';
+    // Published timestamp-suffixed names sort newest-first; unsuffixed is valid too.
+    matches.sort((a,b)=>b.name.localeCompare(a.name,undefined,{numeric:true}));
+    return DSCDN+'data/'+encodeURIComponent(matches[0].name);
+  }catch(e){console.warn('[Spiceify Discord] Could not find cover in GitHub data folder:',e);return ''}
 }
 async function dsSend(){if(!DSON)return;try{if(au.paused||au.ended){if(DSLIVE){DSLIVE=false;await dsPost('/clear')}dsPaint();return}
 const s=SG[ci];if(!s)return;const https=location.protocol==='https:';
-const cover=dsCoverForSong(s);
+const cover=await dsFindRepoCover(s);
 await dsPost('/presence',{title:s.title,artist:String(s.artist||'').replace(/[✓✔]/g,'').trim(),pos:au.currentTime||0,dur:isFinite(au.duration)?au.duration:0,cover,url:https?location.origin+location.pathname:''});DSLIVE=true;dsPaint()}
-catch(e){DSLIVE=false;dsPaint('helper not found')}}
+catch(e){DSLIVE=false;dsPaint('helper not found');console.warn('[Spiceify Discord] Presence update failed:',e)}}
 $('dsb').onclick=async()=>{DSON=!DSON;try{localStorage.setItem('spiceify-dstatus',DSON?'1':'0')}catch(e){}dsPaint();if(DSON){try{const r=await fetch(DSBASE+'/ping');const j=await r.json();if(!j.discord)dsPaint('open Discord app');else dsSend()}catch(e){dsPaint('helper not found')}}else if(DSLIVE){DSLIVE=false;try{await dsPost('/clear')}catch(e){}}};
 ['playing','pause','seeked','ended'].forEach(e=>au.addEventListener(e,()=>{if(DSON)dsSend()}));
 au.addEventListener('loadedmetadata',()=>{if(DSON&&!au.paused)dsSend()});
