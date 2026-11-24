@@ -1133,7 +1133,7 @@ function dsPaint(t){$('dsb').textContent='🎮 Discord status: '+(t||(DSON?'on':
 function dsPost(path,body){return fetch(DSBASE+path,{method:'POST',headers:{'Content-Type':'text/plain'},body:body?JSON.stringify(body):''})}
 async function dsSend(){if(!DSON)return;try{if(au.paused||au.ended){if(DSLIVE){DSLIVE=false;await dsPost('/clear')}dsPaint();return}
 const s=SG[ci];if(!s)return;const https=location.protocol==='https:';
-await dsPost('/presence',{title:s.title,artist:String(s.artist||'').replace(/[✓✔]/g,'').trim(),pos:au.currentTime||0,dur:isFinite(au.duration)?au.duration:0,cover:(/^https:\/\//i.test(s.cover||'')?s.cover:(s.remote&&s.remote.cover&&/^https:\/\//i.test(s.remote.cover)?s.remote.cover:'')),url:https?location.origin+location.pathname:''});DSLIVE=true;dsPaint()}
+await dsPost('/presence',{title:s.title,artist:String(s.artist||'').replace(/[✓✔]/g,'').trim(),pos:au.currentTime||0,dur:isFinite(au.duration)?au.duration:0,cover:(/^https:\/\//i.test(s.cover||'')?s.cover:(s.remote&&s.remote.cover?s.remote.cover:'')),url:https?location.origin+location.pathname:''});DSLIVE=true;dsPaint()}
 catch(e){DSLIVE=false;dsPaint('helper not found')}}
 $('dsb').onclick=async()=>{DSON=!DSON;try{localStorage.setItem('spiceify-dstatus',DSON?'1':'0')}catch(e){}dsPaint();if(DSON){try{const r=await fetch(DSBASE+'/ping');const j=await r.json();if(!j.discord)dsPaint('open Discord app');else dsSend()}catch(e){dsPaint('helper not found')}}else if(DSLIVE){DSLIVE=false;try{await dsPost('/clear')}catch(e){}}};
 ['playing','pause','seeked','ended'].forEach(e=>au.addEventListener(e,()=>{if(DSON)dsSend()}));
