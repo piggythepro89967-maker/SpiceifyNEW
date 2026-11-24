@@ -1132,28 +1132,26 @@ try{DSON=localStorage.getItem('spiceify-dstatus')==='1'}catch(e){}
 function dsPaint(t){$('dsb').textContent='🎮 Discord status: '+(t||(DSON?'on':'off'))}
 function dsPost(path,body){return fetch(DSBASE+path,{method:'POST',headers:{'Content-Type':'text/plain'},body:body?JSON.stringify(body):''})}
 function dsCoverForSong(s){
-  // Discord needs a public HTTPS image URL. Local blob:/data: covers cannot
-  // be fetched by Discord, so use the published GitHub cover when available.
-  const cfg=(typeof GHC==='function'?GHC():{});
-  const repo=(EMB&&EMB.repo&&EMB.repo.repo)||cfg.repo||'';
-  const branch=(EMB&&EMB.repo&&EMB.repo.branch)||cfg.branch||'main';
-  const candidates=[s&&s.remote&&s.remote.cover,s&&s.cover];
+  // Published artwork lives in the user's GitHub repository under data/.
+  // Convert that repository path to a public jsDelivr URL so Discord can fetch it.
+  const candidates=[s&&s.cover,s&&s.remote&&s.remote.cover];
   for(const raw of candidates){
     if(!raw||typeof raw!=='string')continue;
     const v=raw.trim();
-    if(!v||/^(blob:|data:)/i.test(v))continue;
+    if(!v||v.startsWith('blob:')||v.startsWith('data:'))continue;
     try{
-      const u=new URL(v,location.href);
-      if(u.protocol==='https:' && /^https:\/\//i.test(v))return u.href;
-    }catch(e){}
-    // publishAll() stores GitHub cover paths like data/song-id-c.jpg.
-    // Resolve those against the same jsDelivr CDN used by loadRemote().
-    if(repo && /^[\w.-]+\/[\w.-]+$/.test(repo)){
-      const path=v.replace(/^\/+/, '');
-      if(path && !/^(https?:|javascript:)/i.test(path)){
-        return 'https://cdn.jsdelivr.net/gh/'+repo+'@'+encodeURIComponent(branch)+'/'+path.split('/').map(encodeURIComponent).join('/');
+      if(/^https:\/\//i.test(v))return v;
+      if(v.startsWith('//'))return 'https:'+v;
+      const cfg=typeof GHC==='function'?GHC():{};
+      const repo=String(cfg.repo||'').trim();
+      const branch=String(cfg.branch||'main').trim()||'main';
+      const path=v.replace(/^\.?\//,'').split('/').map(encodeURIComponent).join('/');
+      if(/^[\w.-]+\/[\w.-]+$/.test(repo)&&path){
+        return 'https://cdn.jsdelivr.net/gh/'+repo+'@'+branch+'/'+path;
       }
-    }
+      const u=new URL(v,location.href);
+      if(u.protocol==='https:')return u.href;
+    }catch(e){}
   }
   return '';
 }
