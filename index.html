@@ -1132,8 +1132,8 @@ try{DSON=localStorage.getItem('spiceify-dstatus')==='1'}catch(e){}
 function dsPaint(t){$('dsb').textContent='🎮 Discord status: '+(t||(DSON?'on':'off'))}
 function dsPost(path,body){return fetch(DSBASE+path,{method:'POST',headers:{'Content-Type':'text/plain'},body:body?JSON.stringify(body):''})}
 function dsCoverForSong(s){
-  // Prefer a directly hosted cover. Published covers are stored as paths such as
-  // data/song-id-c.jpg, so turn those into public HTTPS URLs for the Python helper.
+  // Public cover URLs are required by Discord. Spiceify publishes artwork into
+  // the connected GitHub repository under paths such as data/song-id-c.jpg.
   const candidates=[s&&s.cover,s&&s.remote&&s.remote.cover];
   for(const raw of candidates){
     if(!raw||typeof raw!=='string')continue;
@@ -1141,9 +1141,22 @@ function dsCoverForSong(s){
     if(!v||v.startsWith('blob:')||v.startsWith('data:'))continue;
     try{
       const u=new URL(v,location.href);
-      if(u.protocol==='https:')return u.href;
+      if(u.protocol==='https:' && !/^https?:\\/\\/[^/]+\\/(data|assets)\\//i.test(v))return u.href;
     }catch(e){}
+    // Relative GitHub-published cover path: fetch it from the public jsDelivr CDN.
+    if(!/^[a-z][a-z0-9+.-]*:/i.test(v) && !v.startsWith('//')){
+      try{
+        const cfg=GHC(), repo=cfg&&cfg.repo, branch=(cfg&&cfg.branch)||'main';
+        if(repo && /^[\\w.-]+\\/[\\w.-]+$/.test(repo)){
+          const path=v.replace(/^\\/+/, '');
+          return 'https://cdn.jsdelivr.net/gh/'+repo+'@'+encodeURIComponent(branch)+'/'+path.split('/').map(encodeURIComponent).join('/');
+        }
+      }catch(e){}
+    }
   }
+  // Last chance: when the current song cover itself is a public HTTPS URL.
+  const raw=s&&s.cover;
+  if(typeof raw==='string' && /^https:\/\//i.test(raw))return raw;
   return '';
 }
 async function dsSend(){if(!DSON)return;try{if(au.paused||au.ended){if(DSLIVE){DSLIVE=false;await dsPost('/clear')}dsPaint();return}
